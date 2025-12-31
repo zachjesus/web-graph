@@ -54,6 +54,6 @@ class Graph:
             self._dot.edge(str(source_id), str(target_id), **attrs)
         else:
             self._dot.edge(str(source_id), str(target_id))
-    
+
     def render(self, **kwargs):
         self._dot.render(**kwargs)
