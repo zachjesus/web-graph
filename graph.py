@@ -1,12 +1,12 @@
+from collections import defaultdict
 from itertools import count
-from typing import Dict, Optional, TypeAlias
+from typing import Dict, Optional, Set, TypeAlias
 
 import graphviz as gv
 
 from web_entity import WebEntity
 
 Attrs: TypeAlias = Dict[str, str]
-NodeId: TypeAlias = int
 
 
 class Graph:
@@ -15,28 +15,24 @@ class Graph:
 
         self._node_id_counter = count(1)
 
-        self._nodes: Dict[NodeId, WebEntity] = dict()
-        self._edges: Dict[NodeId, NodeId] = dict()
+        self._nodes: Dict[int, WebEntity] = dict()
+        self._edges: Dict[int, Set[int]] = defaultdict(set)
 
-    def update_graph_attrs(self, attrs: Attrs) -> None:
-        self._dot.graph_attr.update(attrs)
+        self.update_graph_attrs = self._dot.graph_attr.update
+        self.update_nodes_attrs = self._dot.node_attr.update
+        self.update_edges_attrs = self._dot.edge_attr.update
+        self.render = self._dot.render
 
-    def update_nodes_attrs(self, attrs: Attrs) -> None:
-        self._dot.node_attr.update(attrs)
-
-    def update_edges_attrs(self, attrs: Attrs) -> None:
-        self._dot.edge_attr.update(attrs)
-
-    def get_node(self, node_id: NodeId) -> WebEntity:
+    def get_node(self, node_id: int) -> WebEntity:
         return self._nodes[node_id]
 
-    def get_nodes(self) -> Dict[NodeId, WebEntity]:
+    def get_nodes(self) -> Dict[int, WebEntity]:
         return self._nodes
 
-    def get_edges(self) -> Dict[NodeId, NodeId]:
+    def get_edges(self) -> Dict[int, Set[int]]:
         return self._edges
 
-    def add_node(self, label: str, url: str, attrs: Optional[Attrs] = None) -> NodeId:
+    def add_node(self, label: str, url: str, attrs: Optional[Attrs] = None) -> int:
         node_id = next(self._node_id_counter)
         node = WebEntity(node_id, url)
         self._nodes[node_id] = node
@@ -47,13 +43,12 @@ class Graph:
         return node_id
 
     def add_edge(
-        self, source_id: NodeId, target_id: NodeId, attrs: Optional[Attrs] = None
+        self, source_id: int, target_id: int, attrs: Optional[Attrs] = None
     ) -> None:
-        self._edges[source_id] = target_id
+        if target_id in self._edges[source_id]:
+            return
+        self._edges[source_id].add(target_id)
         if attrs:
             self._dot.edge(str(source_id), str(target_id), **attrs)
         else:
             self._dot.edge(str(source_id), str(target_id))
-
-    def render(self, **kwargs):
-        self._dot.render(**kwargs)
