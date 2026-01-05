@@ -4,7 +4,7 @@ Wraps over graphviz, uses bs4 to parse and httpx for requests. Takes advantage o
 ![image (1)](https://github.com/user-attachments/assets/708b2630-2f47-4bc9-8dc3-43de175790d2)
 
 ## How to Run
-### Pull repo into new folder:
+### Clone repo into new folder:
 ```bash
 git clone https://github.com/zachjesus/web-graph.git .
 ```
